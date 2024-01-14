@@ -117,7 +117,7 @@ export const Chat = () => {
                 <Box component={'div'} sx={{ margin: '16px' }}>
                   {mocks.map((item, index) => {
                     return (
-                      <Box component={'div'} display={'flex'} flexDirection={'column'}>
+                      <Box component={'div'} display={'flex'} flexDirection={'column'} key={index+1}>
                         <Box component={'span'} marginTop={'5px'}>
                           Q{index + 1} - {item.answer}
                         </Box>

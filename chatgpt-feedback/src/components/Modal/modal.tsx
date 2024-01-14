@@ -66,7 +66,7 @@ export default function BasicModal(props: IModal) {
         <DialogContent dividers>
           {mocks.map((item, index) => {
             return (
-              <Box component={'div'} display={'flex'} flexDirection={'column'}>
+              <Box component={'div'} display={'flex'} flexDirection={'column'} key={index+1}>
                 <Box component={'span'} marginTop={'5px'}>
                   Q{index + 1} - {item.answer}
                 </Box>
