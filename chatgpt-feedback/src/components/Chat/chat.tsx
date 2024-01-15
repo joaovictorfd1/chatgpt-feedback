@@ -15,14 +15,14 @@ import { Formik } from 'formik';
 const resposta = [
   {
     "id": '1',
-    "message": 'Pedro Alvares Cabrel?'
+    "message": 'Pedro Alvares Cabrel'
   }
 ]
 
 const pergunta = [
   {
     "id": '1',
-    "message": 'Quem descobriu o Brasil?'
+    "message": 'Who discovered Brazil?'
   }
 ]
 
@@ -51,7 +51,7 @@ export const Chat = () => {
 
   return (
     <Fragment>
-      <Container maxWidth="md" sx={{ position: 'relative ', border: '1px solid gray' }}>
+      <Container maxWidth="md" sx={{ position: 'relative ', border: '1px solid gray', borderRadius: '16px', padding: '10px 0px' }}>
         <Box component={'div'} sx={{ margin: '16px 16px' }} display={'flex'} flexDirection={'column'} gap={'16px'}>
           <Box component={'div'} display={'flex'} flexDirection={'row'} alignItems={'center'}>
             <PersonIcon sx={{ margin: '0px 10px 0px 0px' }} />
@@ -113,7 +113,7 @@ export const Chat = () => {
             isSubmitting,
           }) => (
             <form onSubmit={handleSubmit}>
-              <Container maxWidth="md" sx={{ position: 'relative ', border: '1px solid gray', marginTop: '10px' }}>
+              <Container maxWidth="md" sx={{ position: 'relative ', border: '1px solid gray', marginTop: '10px', borderRadius: '16px', padding: '20px 0px' }}>
                 <Box component={'div'} sx={{ margin: '16px' }}>
                   {mocks.map((item, index) => {
                     return (
@@ -130,7 +130,7 @@ export const Chat = () => {
                             fullWidth
                             variant="outlined"
                             color="primary"
-                            placeholder="Insira sua resposta aqui"
+                            placeholder="Enter your answer here"
                             sx={{ color: 'white', backgroundColor: 'white', borderRadius: '8px'}}
                           />
                         </Box>
