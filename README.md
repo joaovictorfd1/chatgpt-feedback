@@ -28,7 +28,7 @@ The techniques and technologies used for this are:
 ### 1. Get the source code
 
 ```sh
-$ git clone -b develop git@github.com:joaovictorfd/chatgpt-feedback.git
+$ git clone -b develop git@github.com:joaovictorfd1/chatgpt-feedback.git
 $ cd chatgpt-feedback
 ```
 ### 2. Install dependencies
