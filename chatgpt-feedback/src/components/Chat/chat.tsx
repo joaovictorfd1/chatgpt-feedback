@@ -64,7 +64,14 @@ export const Chat = () => {
 
   return (
     <Fragment>
-      <Container maxWidth="md" sx={{ position: 'relative ', border: '1px solid gray', borderRadius: '16px', padding: '10px 0px' }}>
+      <Container
+        maxWidth="md"
+        sx={{
+          position: 'relative ',
+          border: '1px solid gray',
+          borderRadius: '16px',
+          padding: '10px 0px',
+          maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'}}>
         <Box component={'div'} sx={{ margin: '16px 16px' }} display={'flex'} flexDirection={'column'} gap={'16px'}>
           <Box component={'div'} display={'flex'} flexDirection={'row'} alignItems={'center'}>
             <PersonIcon sx={{ margin: '0px 10px 0px 0px' }} />
@@ -126,7 +133,16 @@ export const Chat = () => {
             isSubmitting,
           }) => (
             <form onSubmit={handleSubmit}>
-              <Container maxWidth="md" sx={{ position: 'relative ', border: '1px solid gray', marginTop: '10px', borderRadius: '16px', padding: '20px 0px' }}>
+              <Container
+                maxWidth="md"
+                sx={{
+                  position: 'relative ',
+                  border: '1px solid gray',
+                  marginTop: '10px',
+                  borderRadius: '16px',
+                  padding: '20px 0px',
+                  maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'}}
+                >
                 <Box component={'div'} sx={{ margin: '16px' }}>
                   {mocksObject.map((item, index) => {
                     return (
