@@ -8,9 +8,11 @@ import PersonIcon from '@mui/icons-material/Person';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
+import AddIcon from '@mui/icons-material/Add';
 import { Button, TextField } from "@mui/material";
 import { mocks } from "@/Mocks/mocks";
 import { Formik } from 'formik';
+import { IMock } from '@/interfaces/IMock';
 
 const resposta = [
   {
@@ -41,6 +43,7 @@ const getButtonStyles = (backgroundColor: string) => ({
 
 
 export const Chat = () => {
+  const [mocksObject, setMocksObjects] = useState<IMock[]>(mocks)
   const [open, setOpen] = useState(false)
   const [positiveFeedbackButton, setPositiveFeedbackButton] = useState(false)
   const [negativeFeedbackButton, setNegativeFeedbackButton] = useState(false)
@@ -48,6 +51,16 @@ export const Chat = () => {
   const validation = Yup.object({
     feedback: Yup.string().required()
   })
+
+  const handleAddMock = () => {
+    const newMock = {
+      id: mocksObject.length + 1,
+      answer: mocksObject[0].answer,
+      message: '' // You can set a default message if needed
+    };
+
+    setMocksObjects([...mocksObject, newMock]);
+  };
 
   return (
     <Fragment>
@@ -115,7 +128,7 @@ export const Chat = () => {
             <form onSubmit={handleSubmit}>
               <Container maxWidth="md" sx={{ position: 'relative ', border: '1px solid gray', marginTop: '10px', borderRadius: '16px', padding: '20px 0px' }}>
                 <Box component={'div'} sx={{ margin: '16px' }}>
-                  {mocks.map((item, index) => {
+                  {mocksObject.map((item, index) => {
                     return (
                       <Box component={'div'} display={'flex'} flexDirection={'column'} key={index+1}>
                         <Box component={'span'} marginTop={'5px'}>
@@ -138,6 +151,21 @@ export const Chat = () => {
                     )
                   })}
                 </Box>
+                <Box component={'div'} sx={{ margin: '10px'}} display={'flex'} justifyContent={'center'}>
+                  <Button type='button' onClick={handleAddMock}
+                  sx={{
+                    background: 'rgb(52, 53, 65)',
+                    border: '1px solid rgb(86, 88, 105)',
+                    borderRadius: '8px',
+                    color: 'rgb(217, 217, 227)',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                    minWidth: '150px',
+                    marginRight: '10px'
+                  }}>
+                    <AddIcon />
+                  </Button>
+                </Box>
               </Container>
               <Box component={'div'} display={'flex'} justifyContent={'center'} marginTop={'20px'}>
                 <Button
@@ -146,6 +174,7 @@ export const Chat = () => {
                     setPositiveFeedbackButton(false)
                     setNegativeFeedbackButton(false)
                     setOpen(false)
+                    setMocksObjects([...mocksObject.slice(0, 3)])
                   }}
                   sx={{
                     background: 'rgb(52, 53, 65)',
@@ -165,6 +194,7 @@ export const Chat = () => {
                     setPositiveFeedbackButton(false)
                     setNegativeFeedbackButton(false)
                     setOpen(false)
+                    setMocksObjects([...mocksObject.slice(0, 3)])
                   }}
                   sx={{
                     background: 'rgb(52, 53, 65)',
