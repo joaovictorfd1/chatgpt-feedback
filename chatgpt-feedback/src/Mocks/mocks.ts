@@ -1,17 +1,17 @@
 export const mocks = [
   {
     "id": 1,
-    "answer": 'Quem descobriu o Brasil?',
+    "answer": 'Who discovered Brazil?',
     "message": 'Pedro Alvares Cabral'
   },
   {
     "id": 2,
-    "answer": 'Quem descobriu o Brasil?',
+    "answer": 'Who discovered Brazil?',
     "message": 'Pedro Alvares Cabrel'
   },
   {
     "id": 3,
-    "answer": 'Quem descobriu o Brasil?',
+    "answer": 'Who discovered Brazil?',
     "message": 'Pedro Alvares Cabril'
   },
 ]
