@@ -8,13 +8,13 @@ import PersonIcon from '@mui/icons-material/Person';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
-import AddIcon from '@mui/icons-material/Add';
 import { Button, TextField } from "@mui/material";
-import { FieldArray, Formik, Form } from 'formik';
-import { getQuestionByid, getQuestions } from '@/api/question';
+import { useFormik } from 'formik';
+import { getQuestionByid } from '@/api/botAnswer';
 import { IBotAnwser } from '@/interfaces/IQuestion';
 import { Header } from '@/components/Header/header';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+import { createEvoluation } from '@/api/evaluationQuestion';
 
 const getButtonStyles = (backgroundColor: string) => ({
   borderRadius: '16px',
@@ -43,22 +43,12 @@ const Chat = () => {
   const [negativeFeedbackButton, setNegativeFeedbackButton] = useState(false)
 
   const validationFeedback = Yup.object({
-    feedback: Yup.array()
-      .required('Pelo menos uma posição precisa ser preenchida')
-      .of(
-        Yup.string().trim().required('Cada posição do array precisa ser uma string não vazia')
-      )
+    feedback: Yup.string().notRequired()
   });
 
-  // const handleAddMock = () => {
-  //   const newMock = {
-  //     id: mocksObject.length + 1,
-  //     answer: mocksObject[0].answer,
-  //     message: '' // You can set a default message if needed
-  //   };
-
-  //   setMocksObjects([...mocksObject, newMock]);
-  // };
+  const initialValues: IFeedbackSubmit = {
+    feedback: '',
+  }
 
   const getQuestionId = useCallback(async () => {
     try {
@@ -76,16 +66,27 @@ const Chat = () => {
   }, []);
 
   const onSubmit = async (values: IFeedbackSubmit) => {
-    console.log('entrou')
-    console.log(values)
+    const response = await createEvoluation({
+      negativeCount: negativeFeedbackButton ? 1 : 0,
+      positiveCount: positiveFeedbackButton ? 1 : 0,
+      botAnswerId: id as string,
+      score: 0,
+    })
+    console.log(response)
   }
 
   useEffect(() => {
-    console.log('entrou')
     if (id) {
       getQuestionId()
     }
   }, [id])
+
+  const formik = useFormik({
+    initialValues,
+    onSubmit,
+    validationSchema: validationFeedback,
+    enableReinitialize: true,
+  });
 
   return (
     <Fragment>
@@ -159,84 +160,62 @@ const Chat = () => {
               maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'
             }}
           >
-            <Formik
-              initialValues={{ feedback: '' }}
-              // validationSchema={validationFeedback}
-              onSubmit={onSubmit}
-            >
-              {(formik) => (
-                <Form>
-                  <Box component={'div'} sx={{ margin: '16px' }}>
-                    <Box component={'div'} display={'flex'} flexDirection={'column'}>
-                      <Box component={'span'} marginTop={'5px'}>
-                        How to improve the bot's response
-                      </Box>
-                      <Box component={'span'} margin={'10px'}>
-                        <TextField
-                          id='feedback'
-                          name='feedback'
-                          type="text"
-                          fullWidth
-                          variant="outlined"
-                          color="primary"
-                          placeholder="Enter your answer here"
-                          sx={{ color: 'white', backgroundColor: 'white', borderRadius: '8px' }}
-                        />
-                      </Box>
-                    </Box>
-                  </Box>
-                  {/* <Box component={'div'} sx={{ margin: '10px' }} display={'flex'} justifyContent={'center'}>
-                    <Button type='button' onClick={handleAddMock}
-                      sx={{
-                        background: 'rgb(52, 53, 65)',
-                        border: '1px solid rgb(86, 88, 105)',
-                        borderRadius: '8px',
-                        color: 'rgb(217, 217, 227)',
-                        fontSize: '14px',
-                        textTransform: 'uppercase',
-                        minWidth: '150px',
-                        marginRight: '10px'
-                      }}>
-                      <AddIcon />
-                    </Button>
-                  </Box> */}
-                  <Box component={'div'} display={'flex'} justifyContent={'center'} marginTop={'20px'}>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        setPositiveFeedbackButton(false)
-                        setNegativeFeedbackButton(false)
-                        setOpen(false)
-                      }}
-                      sx={{
-                        background: 'rgb(52, 53, 65)',
-                        border: '1px solid rgb(86, 88, 105)',
-                        borderRadius: '8px',
-                        color: 'rgb(217, 217, 227)',
-                        fontSize: '14px',
-                        textTransform: 'uppercase',
-                        minWidth: '150px',
-                        marginRight: '10px'
-                      }}>
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      sx={{
-                        background: 'rgb(52, 53, 65)',
-                        border: '1px solid rgb(86, 88, 105)',
-                        borderRadius: '8px',
-                        color: 'rgb(217, 217, 227)',
-                        fontSize: '14px',
-                        textTransform: 'uppercase',
-                        minWidth: '150px',
-                      }}>
-                      Submit
-                    </Button>
-                  </Box>
-                </Form>
-              )}
-            </Formik>
+            <Box component={'div'} sx={{ margin: '16px' }}>
+              <Box component={'div'} display={'flex'} flexDirection={'column'}>
+                <Box component={'span'} marginTop={'5px'}>
+                  How to improve the bot's response
+                </Box>
+                <Box component={'span'} margin={'10px'}>
+                  <TextField
+                    id='feedback'
+                    name='feedback'
+                    type="text"
+                    fullWidth
+                    variant="outlined"
+                    color="primary"
+                    placeholder="Enter your answer here"
+                    sx={{ color: 'white', backgroundColor: 'white', borderRadius: '8px' }}
+                    value={formik.values.feedback}
+                    onChange={formik.handleChange}
+                  />
+                </Box>
+              </Box>
+            </Box>
+            <Box component={'div'} display={'flex'} justifyContent={'center'} marginTop={'20px'}>
+              <Button
+                type="button"
+                onClick={() => {
+                  setPositiveFeedbackButton(false)
+                  setNegativeFeedbackButton(false)
+                  setOpen(false)
+                }}
+                sx={{
+                  background: 'rgb(52, 53, 65)',
+                  border: '1px solid rgb(86, 88, 105)',
+                  borderRadius: '8px',
+                  color: 'rgb(217, 217, 227)',
+                  fontSize: '14px',
+                  textTransform: 'uppercase',
+                  minWidth: '150px',
+                  marginRight: '10px'
+                }}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                onClick={() => formik.handleSubmit()}
+                sx={{
+                  background: 'rgb(52, 53, 65)',
+                  border: '1px solid rgb(86, 88, 105)',
+                  borderRadius: '8px',
+                  color: 'rgb(217, 217, 227)',
+                  fontSize: '14px',
+                  textTransform: 'uppercase',
+                  minWidth: '150px',
+                }}>
+                Submit
+              </Button>
+            </Box>
           </Container>
         </Fragment>
       )}

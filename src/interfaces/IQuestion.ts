@@ -12,3 +12,11 @@ export interface IBotAnwser {
   reply: string
   threadId: string
 }
+
+export interface IEvoluationQuestion {
+  id?: string
+  score?: number
+  positiveCount: number
+  negativeCount: number
+  botAnswerId: string
+}
