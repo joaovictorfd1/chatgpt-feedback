@@ -5,9 +5,10 @@ interface IFeedback {
   type: "positive" | "negative",
 }
 
-export interface IQuestion {
-  id: number
+export interface IBotAnwser {
+  id: string
+  docgptId: string
   question: string
-  awnser: string
-  feedback: string[]
+  reply: string
+  threadId: string
 }

@@ -131,16 +131,6 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 
 /***/ }),
 
-/***/ "(ssr)/./node_modules/@mui/icons-material/Add.js":
-/*!*************************************************!*\
-  !*** ./node_modules/@mui/icons-material/Add.js ***!
-  \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-eval("/* __next_internal_client_entry_do_not_use__  cjs */ \nvar _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ \"(ssr)/./node_modules/@babel/runtime/helpers/interopRequireDefault.js\");\nObject.defineProperty(exports, \"__esModule\", ({\n    value: true\n}));\nexports[\"default\"] = void 0;\nvar _createSvgIcon = _interopRequireDefault(__webpack_require__(/*! ./utils/createSvgIcon */ \"(ssr)/./node_modules/@mui/icons-material/utils/createSvgIcon.js\"));\nvar _jsxRuntime = __webpack_require__(/*! react/jsx-runtime */ \"(ssr)/./node_modules/next/dist/server/future/route-modules/app-page/vendored/ssr/react-jsx-runtime.js\");\nvar _default = exports[\"default\"] = (0, _createSvgIcon.default)(/*#__PURE__*/ (0, _jsxRuntime.jsx)(\"path\", {\n    d: \"M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z\"\n}), \"Add\");\n//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiKHNzcikvLi9ub2RlX21vZHVsZXMvQG11aS9pY29ucy1tYXRlcmlhbC9BZGQuanMiLCJtYXBwaW5ncyI6InFEQUFhO0FBR2IsSUFBSUEseUJBQXlCQyxtQkFBT0EsQ0FBQywwSEFBOEM7QUFDbkZDLDhDQUE2QztJQUMzQ0csT0FBTztBQUNULENBQUMsRUFBQztBQUNGRCxrQkFBZSxHQUFHLEtBQUs7QUFDdkIsSUFBSUcsaUJBQWlCUCx1QkFBdUJDLG1CQUFPQSxDQUFDLDhGQUF1QjtBQUMzRSxJQUFJTyxjQUFjUCxtQkFBT0EsQ0FBQyxnSUFBbUI7QUFDN0MsSUFBSVEsV0FBV0wsa0JBQWUsR0FBRyxDQUFDLEdBQUdHLGVBQWVELE9BQU8sRUFBZ0IsV0FBRixHQUFHLElBQUdFLFlBQVlFLEdBQUcsRUFBRSxRQUFRO0lBQ3RHQyxHQUFHO0FBQ0wsSUFBSSIsInNvdXJjZXMiOlsid2VicGFjazovL2NoYXRncHQtZmVlZGJhY2svLi9ub2RlX21vZHVsZXMvQG11aS9pY29ucy1tYXRlcmlhbC9BZGQuanM/M2MwZSJdLCJzb3VyY2VzQ29udGVudCI6WyJcInVzZSBzdHJpY3RcIjtcblwidXNlIGNsaWVudFwiO1xuXG52YXIgX2ludGVyb3BSZXF1aXJlRGVmYXVsdCA9IHJlcXVpcmUoXCJAYmFiZWwvcnVudGltZS9oZWxwZXJzL2ludGVyb3BSZXF1aXJlRGVmYXVsdFwiKTtcbk9iamVjdC5kZWZpbmVQcm9wZXJ0eShleHBvcnRzLCBcIl9fZXNNb2R1bGVcIiwge1xuICB2YWx1ZTogdHJ1ZVxufSk7XG5leHBvcnRzLmRlZmF1bHQgPSB2b2lkIDA7XG52YXIgX2NyZWF0ZVN2Z0ljb24gPSBfaW50ZXJvcFJlcXVpcmVEZWZhdWx0KHJlcXVpcmUoXCIuL3V0aWxzL2NyZWF0ZVN2Z0ljb25cIikpO1xudmFyIF9qc3hSdW50aW1lID0gcmVxdWlyZShcInJlYWN0L2pzeC1ydW50aW1lXCIpO1xudmFyIF9kZWZhdWx0ID0gZXhwb3J0cy5kZWZhdWx0ID0gKDAsIF9jcmVhdGVTdmdJY29uLmRlZmF1bHQpKCAvKiNfX1BVUkVfXyovKDAsIF9qc3hSdW50aW1lLmpzeCkoXCJwYXRoXCIsIHtcbiAgZDogXCJNMTkgMTNoLTZ2NmgtMnYtNkg1di0yaDZWNWgydjZoNnpcIlxufSksICdBZGQnKTsiXSwibmFtZXMiOlsiX2ludGVyb3BSZXF1aXJlRGVmYXVsdCIsInJlcXVpcmUiLCJPYmplY3QiLCJkZWZpbmVQcm9wZXJ0eSIsImV4cG9ydHMiLCJ2YWx1ZSIsImRlZmF1bHQiLCJfY3JlYXRlU3ZnSWNvbiIsIl9qc3hSdW50aW1lIiwiX2RlZmF1bHQiLCJqc3giLCJkIl0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///(ssr)/./node_modules/@mui/icons-material/Add.js\n");
-
-/***/ }),
-
 /***/ "(ssr)/./node_modules/@mui/icons-material/ChatBubble.js":
 /*!********************************************************!*\
   !*** ./node_modules/@mui/icons-material/ChatBubble.js ***!
