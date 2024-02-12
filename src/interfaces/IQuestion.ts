@@ -1,8 +1,8 @@
-interface IFeedback {
-  id: number,
+export interface IFeedback {
+  id?: number,
   question: string,
-  awnser_feedback: string
-  type: "positive" | "negative",
+  answer: string
+  evaluationId: string
 }
 
 export interface IBotAnwser {
@@ -15,8 +15,7 @@ export interface IBotAnwser {
 
 export interface IEvoluationQuestion {
   id?: string
-  score?: number
   positiveCount: number
   negativeCount: number
-  botAnswerId: string
+  botAnswerId?: string
 }

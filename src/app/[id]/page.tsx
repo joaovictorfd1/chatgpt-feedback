@@ -11,10 +11,11 @@ import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import { Button, TextField } from "@mui/material";
 import { useFormik } from 'formik';
 import { getQuestionByid } from '@/api/botAnswer';
-import { IBotAnwser } from '@/interfaces/IQuestion';
+import { IBotAnwser, IEvoluationQuestion } from '@/interfaces/IQuestion';
 import { Header } from '@/components/Header/header';
 import { usePathname } from 'next/navigation'
-import { createEvoluation } from '@/api/evaluationQuestion';
+import { createEvoluation, getEvaluationByBotId, updateEvoluation } from '@/api/evaluationQuestion';
+import { createFeedback } from '@/api/feedback';
 
 const getButtonStyles = (backgroundColor: string) => ({
   borderRadius: '16px',
@@ -66,13 +67,25 @@ const Chat = () => {
   }, []);
 
   const onSubmit = async (values: IFeedbackSubmit) => {
-    const response = await createEvoluation({
+    const existEvaluationObject = await getEvaluationByBotId(id as string)
+    const response = await existEvaluationObject ? updateEvoluation({
+      negativeCount: negativeFeedbackButton ? existEvaluationObject.negativeCount += 1 : existEvaluationObject.negativeCount,
+      positiveCount: positiveFeedbackButton ? existEvaluationObject.positiveCount += 1 : existEvaluationObject.positiveCount,
+    }, existEvaluationObject.id as string) : createEvoluation({
       negativeCount: negativeFeedbackButton ? 1 : 0,
       positiveCount: positiveFeedbackButton ? 1 : 0,
       botAnswerId: id as string,
-      score: 0,
     })
-    console.log(response)
+    if (values.feedback !== '') {
+      const responseFeedback = await createFeedback({
+        question: question?.question as string,
+        answer: values.feedback,
+        evaluationId: existEvaluationObject.id as string,
+      })
+      if (responseFeedback) {
+        
+      }
+    }
   }
 
   useEffect(() => {

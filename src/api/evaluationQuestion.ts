@@ -18,6 +18,15 @@ export const getEvaluationById = async (id: string) => {
   }
 };
 
+export const getEvaluationByBotId = async (id: string) => {
+  try {
+    const response = await api.get<IEvoluationQuestion>(`${path}/${`botanswer`}/${id}`)
+    return response.data;
+  } catch (error) {
+    throw new Error("Requisição invalida");
+  }
+}
+
 export const createEvoluation = async (body: IEvoluationQuestion) => {
   try {
     const response = await api.post(`${path}`, body);
@@ -25,5 +34,13 @@ export const createEvoluation = async (body: IEvoluationQuestion) => {
   } catch(error) {
     throw new Error("Requisição invalida");
   }
+}
 
+export const updateEvoluation = async (body: IEvoluationQuestion, id: string) => {
+  try {
+    const response = await api.put(`${path}/${id}`, body);
+    return response
+  } catch(error) {
+    throw new Error("Requisição invalida");
+  }
 }
