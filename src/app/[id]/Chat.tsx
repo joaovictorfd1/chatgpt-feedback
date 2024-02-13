@@ -1,0 +1,239 @@
+'use client'
+import * as Yup from 'yup';
+import './chat.css';
+import React, { Fragment, useCallback, useEffect, useState } from "react";
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import PersonIcon from '@mui/icons-material/Person';
+import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
+import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
+import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
+import { Button, TextField } from "@mui/material";
+import { useFormik } from 'formik';
+import { getQuestionByid } from '@/api/botAnswer';
+import { IBotAnwser, IEvoluationQuestion } from '@/interfaces/IQuestion';
+import { Header } from '@/components/Header/header';
+import { usePathname } from 'next/navigation'
+import { createEvoluation, getEvaluationByBotId, updateEvoluation } from '@/api/evaluationQuestion';
+import { createFeedback } from '@/api/feedback';
+
+const getButtonStyles = (backgroundColor: string) => ({
+  borderRadius: '16px',
+  margin: '0px 10px',
+  width: '40px',
+  height: '40px',
+  minWidth: 'unset',
+  background: 'white',
+  padding: 0,
+  '&:hover': {
+    backgroundColor: backgroundColor,
+  },
+});
+
+interface IFeedbackSubmit {
+  feedback: string
+}
+
+
+const Chat = () => {
+  const pathname = usePathname()
+  const id = pathname.split('/').pop()
+  const [question, setQuestion] = useState<IBotAnwser>()
+  const [open, setOpen] = useState(false)
+  const [positiveFeedbackButton, setPositiveFeedbackButton] = useState(false)
+  const [negativeFeedbackButton, setNegativeFeedbackButton] = useState(false)
+
+  const validationFeedback = Yup.object({
+    feedback: Yup.string().notRequired()
+  });
+
+  const initialValues: IFeedbackSubmit = {
+    feedback: '',
+  }
+
+  const getQuestionId = useCallback(async () => {
+    try {
+      const response = await getQuestionByid(id as string);
+      if (response) {
+        setQuestion(response);
+      } else {
+        setQuestion({} as IBotAnwser);
+      }
+    } catch (error) {
+      // Lidar com erros, se necessário
+      console.error('Erro ao obter a questão:', error);
+      setQuestion({} as IBotAnwser);
+    }
+  }, []);
+
+  const onSubmit = async (values: IFeedbackSubmit) => {
+    const existEvaluationObject = await getEvaluationByBotId(id as string)
+    const response = await existEvaluationObject ? updateEvoluation({
+      negativeCount: negativeFeedbackButton ? existEvaluationObject.negativeCount += 1 : existEvaluationObject.negativeCount,
+      positiveCount: positiveFeedbackButton ? existEvaluationObject.positiveCount += 1 : existEvaluationObject.positiveCount,
+    }, existEvaluationObject.id as string) : createEvoluation({
+      negativeCount: negativeFeedbackButton ? 1 : 0,
+      positiveCount: positiveFeedbackButton ? 1 : 0,
+      botAnswerId: id as string,
+    })
+    if (values.feedback !== '') {
+      const responseFeedback = await createFeedback({
+        question: question?.question as string,
+        answer: values.feedback,
+        evaluationId: existEvaluationObject.id as string,
+      })
+      if (responseFeedback) {
+        
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (id) {
+      getQuestionId()
+    }
+  }, [id])
+
+  const formik = useFormik({
+    initialValues,
+    onSubmit,
+    validationSchema: validationFeedback,
+    enableReinitialize: true,
+  });
+
+  return (
+    <Fragment>
+      <Header />
+      <Container
+        maxWidth="md"
+        sx={{
+          position: 'relative ',
+          border: '1px solid gray',
+          borderRadius: '16px',
+          padding: '10px 0px',
+          maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'
+        }}>
+        <Box component={'div'} sx={{ margin: '16px 16px' }} display={'flex'} flexDirection={'column'} gap={'16px'}>
+          <Box component={'div'} display={'flex'} flexDirection={'row'} alignItems={'center'}>
+            <PersonIcon sx={{ margin: '0px 10px 0px 0px' }} />
+            <Box component={'span'}>
+              Question: {question?.question}
+            </Box>
+          </Box>
+          <Box component={'div'} display={'flex'} flexDirection={'column'} gap={'6px'}>
+            <Box component={'div'} display={'flex'} flexDirection={'row'} alignItems={'center'}>
+              <ChatBubbleIcon sx={{ margin: '0px 10px 0px 0px' }} />
+              <Box component={'span'}>
+                Answer: {question?.reply}
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+        {/* <BasicModal open={open} onClose={() => setOpen(false)} icon={type === 'positive' ? <ThumbUpAltOutlinedIcon /> : <ThumbDownOutlinedIcon />} /> */}
+      </Container>
+      <Box component={'div'} display={'flex'} justifyContent={'center'} margin={'20px 0px'}>
+        <Button
+          className={positiveFeedbackButton ? 'selected-positive-button' : ''}
+          type="button"
+          variant="contained"
+          color="primary"
+          sx={getButtonStyles('rgba(210,244,211,1)')}
+          onClick={() => {
+            setNegativeFeedbackButton(false)
+            setPositiveFeedbackButton(true)
+            setOpen(true)
+          }}>
+          <ThumbUpAltOutlinedIcon sx={{ width: '40px', color: 'rgba(26,127,100,1)' }} />
+        </Button>
+        <Button
+          className={negativeFeedbackButton ? 'selected-negative-button' : ''}
+          type="button"
+          variant="contained"
+          color="primary"
+          sx={getButtonStyles('rgba(254,226,226,1)')}
+          onClick={() => {
+            setPositiveFeedbackButton(false)
+            setNegativeFeedbackButton(true)
+            setOpen(true)
+          }}>
+          <ThumbDownOutlinedIcon sx={{ width: '40px', color: 'rgba(220,38,38,1)' }} />
+        </Button>
+      </Box>
+
+      {open && (
+        <Fragment>
+          <Container
+            maxWidth="md"
+            sx={{
+              position: 'relative ',
+              border: '1px solid gray',
+              marginTop: '10px',
+              borderRadius: '16px',
+              padding: '20px 0px',
+              maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'
+            }}
+          >
+            <Box component={'div'} sx={{ margin: '16px' }}>
+              <Box component={'div'} display={'flex'} flexDirection={'column'}>
+                <Box component={'span'} marginTop={'5px'}>
+                  How to improve the bot's response
+                </Box>
+                <Box component={'span'} margin={'10px'}>
+                  <TextField
+                    id='feedback'
+                    name='feedback'
+                    type="text"
+                    fullWidth
+                    variant="outlined"
+                    color="primary"
+                    placeholder="Enter your answer here"
+                    sx={{ color: 'white', backgroundColor: 'white', borderRadius: '8px' }}
+                    value={formik.values.feedback}
+                    onChange={formik.handleChange}
+                  />
+                </Box>
+              </Box>
+            </Box>
+            <Box component={'div'} display={'flex'} justifyContent={'center'} marginTop={'20px'}>
+              <Button
+                type="button"
+                onClick={() => {
+                  setPositiveFeedbackButton(false)
+                  setNegativeFeedbackButton(false)
+                  setOpen(false)
+                }}
+                sx={{
+                  background: 'rgb(52, 53, 65)',
+                  border: '1px solid rgb(86, 88, 105)',
+                  borderRadius: '8px',
+                  color: 'rgb(217, 217, 227)',
+                  fontSize: '14px',
+                  textTransform: 'uppercase',
+                  minWidth: '150px',
+                  marginRight: '10px'
+                }}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                onClick={() => formik.handleSubmit()}
+                sx={{
+                  background: 'rgb(52, 53, 65)',
+                  border: '1px solid rgb(86, 88, 105)',
+                  borderRadius: '8px',
+                  color: 'rgb(217, 217, 227)',
+                  fontSize: '14px',
+                  textTransform: 'uppercase',
+                  minWidth: '150px',
+                }}>
+                Submit
+              </Button>
+            </Box>
+          </Container>
+        </Fragment>
+      )}
+    </Fragment>
+  )
+}
+
+export default Chat
