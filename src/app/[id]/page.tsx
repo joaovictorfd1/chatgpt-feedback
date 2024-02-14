@@ -10,12 +10,12 @@ import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import { Button, TextField } from "@mui/material";
 import { useFormik } from 'formik';
-import { getQuestionByid } from '@/api/botAnswer';
-import { IBotAnwser, IEvoluationQuestion } from '@/interfaces/IQuestion';
-import { Header } from '@/components/Header/header';
+import { getQuestionByid } from '../../api/botAnswer';
+import { IBotAnwser, IEvoluationQuestion } from '../../interfaces/IQuestion';
+import { Header } from '../../components/Header/header';
 import { usePathname } from 'next/navigation'
-import { createEvoluation, getEvaluationByBotId, updateEvoluation } from '@/api/evaluationQuestion';
-import { createFeedback } from '@/api/feedback';
+import { createEvoluation, getEvaluationByBotId, updateEvoluation } from '../../api/evaluationQuestion';
+import { createFeedback } from '../../api/feedback';
 
 const getButtonStyles = (backgroundColor: string) => ({
   borderRadius: '16px',
@@ -34,10 +34,13 @@ interface IFeedbackSubmit {
   feedback: string
 }
 
+// interface IChatProps {
+//   id: string
+// }
 
 const Chat = () => {
   const pathname = usePathname()
-  const id = pathname.split('/').pop()
+  const id = pathname?.split('/').pop()
   const [question, setQuestion] = useState<IBotAnwser>()
   const [open, setOpen] = useState(false)
   const [positiveFeedbackButton, setPositiveFeedbackButton] = useState(false)
@@ -133,6 +136,7 @@ const Chat = () => {
       </Container>
       <Box component={'div'} display={'flex'} justifyContent={'center'} margin={'20px 0px'}>
         <Button
+          data-testid='positiveButton'
           className={positiveFeedbackButton ? 'selected-positive-button' : ''}
           type="button"
           variant="contained"
@@ -146,6 +150,7 @@ const Chat = () => {
           <ThumbUpAltOutlinedIcon sx={{ width: '40px', color: 'rgba(26,127,100,1)' }} />
         </Button>
         <Button
+          data-testid='negativeButton'
           className={negativeFeedbackButton ? 'selected-negative-button' : ''}
           type="button"
           variant="contained"
