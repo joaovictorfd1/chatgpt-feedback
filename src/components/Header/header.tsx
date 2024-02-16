@@ -13,7 +13,7 @@ export const Header = () => {
           noWrap
           sx={{ flex: 1 }}
         >
-          ChatGPT-Feedback
+          DocGPT Feedback
         </Typography>
       </Box>
       <Box component={'div'} margin={'10px 0px'}>
