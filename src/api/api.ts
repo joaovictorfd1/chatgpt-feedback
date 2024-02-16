@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiUrl = "http://docgptfeedback.bot.nu/"
+const apiUrl = "http://api.docgptfeedback.bot.nu/"
 
 export const api = axios.create({
   // baseURL: process.env.REACT_APP_API,
