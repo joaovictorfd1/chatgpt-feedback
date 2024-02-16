@@ -16,6 +16,9 @@ import { Header } from '../../components/Header/header';
 import { usePathname } from 'next/navigation'
 import { createEvoluation, getEvaluationByBotId, updateEvoluation } from '../../api/evaluationQuestion';
 import { createFeedback } from '../../api/feedback';
+import { AxiosResponse } from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const getButtonStyles = (backgroundColor: string) => ({
   borderRadius: '16px',
@@ -34,10 +37,6 @@ interface IFeedbackSubmit {
   feedback: string
 }
 
-// interface IChatProps {
-//   id: string
-// }
-
 const Chat = () => {
   const pathname = usePathname()
   const id = pathname?.split('/').pop()
@@ -52,6 +51,10 @@ const Chat = () => {
 
   const initialValues: IFeedbackSubmit = {
     feedback: '',
+  }
+
+  function isEvoluationQuestion(obj: any): obj is IEvoluationQuestion {
+    return obj && typeof obj.id === 'string' && typeof obj.negativeCount === 'number' && typeof obj.positiveCount === 'number' && typeof obj.score === 'number';
   }
 
   const getQuestionId = useCallback(async () => {
@@ -71,23 +74,56 @@ const Chat = () => {
 
   const onSubmit = async (values: IFeedbackSubmit) => {
     const existEvaluationObject = await getEvaluationByBotId(id as string)
-    const response = await existEvaluationObject ? updateEvoluation({
+    const response: AxiosResponse<IEvoluationQuestion, any> = isEvoluationQuestion(existEvaluationObject) ? await updateEvoluation({
       negativeCount: negativeFeedbackButton ? existEvaluationObject.negativeCount += 1 : existEvaluationObject.negativeCount,
       positiveCount: positiveFeedbackButton ? existEvaluationObject.positiveCount += 1 : existEvaluationObject.positiveCount,
-    }, existEvaluationObject.id as string) : createEvoluation({
+      score: existEvaluationObject.score += 1,
+    }, existEvaluationObject.id as string) : await createEvoluation({
       negativeCount: negativeFeedbackButton ? 1 : 0,
       positiveCount: positiveFeedbackButton ? 1 : 0,
+      score: 1,
       botAnswerId: id as string,
     })
     if (values.feedback !== '') {
       const responseFeedback = await createFeedback({
         question: question?.question as string,
         answer: values.feedback,
-        evaluationId: existEvaluationObject.id as string,
+        evaluationId: response.data.id as string,
       })
-      if (responseFeedback) {
-        
+      if (responseFeedback && responseFeedback.data) {
+        return toast.success('Feedback created successfully!', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        })
       }
+      return toast.error(responseFeedback.data.detail, {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      })
+    }
+    if (response && response.data) {
+      return toast.success('Evoluation created successfully!', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      })
     }
   }
 
@@ -107,6 +143,7 @@ const Chat = () => {
   return (
     <Fragment>
       <Header />
+      <ToastContainer />
       <Container
         maxWidth="md"
         sx={{
@@ -132,7 +169,6 @@ const Chat = () => {
             </Box>
           </Box>
         </Box>
-        {/* <BasicModal open={open} onClose={() => setOpen(false)} icon={type === 'positive' ? <ThumbUpAltOutlinedIcon /> : <ThumbDownOutlinedIcon />} /> */}
       </Container>
       <Box component={'div'} display={'flex'} justifyContent={'center'} margin={'20px 0px'}>
         <Button

@@ -22,8 +22,8 @@ export const getEvaluationByBotId = async (id: string) => {
   try {
     const response = await api.get<IEvoluationQuestion>(`${path}/${`botanswer`}/${id}`)
     return response.data;
-  } catch (error) {
-    throw new Error("Requisição invalida");
+  } catch (error: unknown) {
+    return error
   }
 }
 

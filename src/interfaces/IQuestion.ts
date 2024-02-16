@@ -15,6 +15,7 @@ export interface IBotAnwser {
 
 export interface IEvoluationQuestion {
   id?: string
+  score: number
   positiveCount: number
   negativeCount: number
   botAnswerId?: string
