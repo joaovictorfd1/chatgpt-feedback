@@ -37,6 +37,11 @@ interface IFeedbackSubmit {
   feedback: string
 }
 
+interface IScoreProps {
+  positiveCount: number
+  negativeCount: number
+}
+
 const Chat = () => {
   const pathname = usePathname()
   const id = pathname?.split('/').pop()
@@ -44,6 +49,7 @@ const Chat = () => {
   const [open, setOpen] = useState(false)
   const [positiveFeedbackButton, setPositiveFeedbackButton] = useState(false)
   const [negativeFeedbackButton, setNegativeFeedbackButton] = useState(false)
+  const [score, setScore] = useState<IScoreProps>({} as IScoreProps)
 
   const validationFeedback = Yup.object({
     feedback: Yup.string().notRequired()
@@ -58,19 +64,23 @@ const Chat = () => {
   }
 
   const getQuestionId = useCallback(async () => {
-    try {
-      const response = await getQuestionByid(id as string);
-      if (response) {
-        setQuestion(response);
-      } else {
-        setQuestion({} as IBotAnwser);
-      }
-    } catch (error) {
-      // Lidar com erros, se necessário
-      console.error('Erro ao obter a questão:', error);
-      setQuestion({} as IBotAnwser);
+    const response = await getQuestionByid(id as string);
+    if (response) {
+      return setQuestion(response);
     }
+    return setQuestion({} as IBotAnwser);
   }, []);
+
+  const getEvaluationById = useCallback(async () => {
+    const response = await getEvaluationByBotId(id as string) as IEvoluationQuestion
+    if (response) {
+      return setScore({
+        positiveCount: response?.positiveCount,
+        negativeCount: response?.negativeCount
+      })
+    }
+    return setScore({} as IEvoluationQuestion)
+  }, [])
 
   const onSubmit = async (values: IFeedbackSubmit) => {
     const existEvaluationObject = await getEvaluationByBotId(id as string)
@@ -130,6 +140,7 @@ const Chat = () => {
   useEffect(() => {
     if (id) {
       getQuestionId()
+      getEvaluationById()
     }
   }, [id])
 
@@ -153,21 +164,33 @@ const Chat = () => {
           padding: '10px 0px',
           maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'
         }}>
-        <Box component={'div'} sx={{ margin: '16px 16px' }} display={'flex'} flexDirection={'column'} gap={'16px'}>
-          <Box component={'div'} display={'flex'} flexDirection={'row'} alignItems={'center'}>
-            <PersonIcon sx={{ margin: '0px 10px 0px 0px' }} />
-            <Box component={'span'}>
-              Question: {question?.question}
-            </Box>
-          </Box>
-          <Box component={'div'} display={'flex'} flexDirection={'column'} gap={'6px'}>
+        <Box component={'div'} display={'flex'} justifyContent={'space-between'}>
+          <Box component={'div'} sx={{ margin: '16px 16px' }} display={'flex'} flexDirection={'column'} gap={'16px'}>
             <Box component={'div'} display={'flex'} flexDirection={'row'} alignItems={'center'}>
-              <ChatBubbleIcon sx={{ margin: '0px 10px 0px 0px' }} />
+              <PersonIcon sx={{ margin: '0px 10px 0px 0px' }} />
               <Box component={'span'}>
-                Answer: {question?.reply}
+                Question: {question?.question}
+              </Box>
+            </Box>
+            <Box component={'div'} display={'flex'} flexDirection={'column'} gap={'6px'}>
+              <Box component={'div'} display={'flex'} flexDirection={'row'} alignItems={'center'}>
+                <ChatBubbleIcon sx={{ margin: '0px 10px 0px 0px' }} />
+                <Box component={'span'}>
+                  Answer: {question?.reply}
+                </Box>
               </Box>
             </Box>
           </Box>
+          {open && (
+            <Box component={'div'} sx={{ margin: '16px 16px' }} display={'flex'} flexDirection={'column'} gap={'16px'}>
+              <Box component={'span'}>
+                Positive: {score.positiveCount || 0}
+              </Box>
+              <Box component={'span'}>
+                Negative: {score.negativeCount || 0}
+              </Box>
+            </Box>
+          )}
         </Box>
       </Container>
       <Box component={'div'} display={'flex'} justifyContent={'center'} margin={'20px 0px'}>
