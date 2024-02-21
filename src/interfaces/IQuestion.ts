@@ -8,6 +8,7 @@ export interface IFeedback {
 export interface IBotAnwser {
   id: string
   docgptId: string
+  project: string
   question: string
   reply: string
   threadId: string
@@ -19,4 +20,9 @@ export interface IEvoluationQuestion {
   positiveCount: number
   negativeCount: number
   botAnswerId?: string
+}
+
+export interface IProject {
+  project: string
+  botAnswers: IBotAnwser[]
 }

@@ -5,20 +5,42 @@ import React, { Fragment, useCallback, useEffect, useState } from "react";
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import PersonIcon from '@mui/icons-material/Person';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import MenuIcon from '@mui/icons-material/Menu';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import Collapse from '@mui/material/Collapse';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import StarBorder from '@mui/icons-material/StarBorder';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
-import { Button, TextField } from "@mui/material";
+import {
+  Button,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
+  TextField,
+  Toolbar,
+  Typography,
+  styled
+} from "@mui/material";
 import { useFormik } from 'formik';
-import { getQuestionByid } from '../../api/botAnswer';
-import { IBotAnwser, IEvoluationQuestion } from '../../interfaces/IQuestion';
-import { Header } from '../../components/Header/header';
+import { getAllProject, getQuestionByid } from '../../api/botAnswer';
+import { IBotAnwser, IEvoluationQuestion, IProject } from '../../interfaces/IQuestion';
 import { usePathname } from 'next/navigation'
 import { createEvoluation, getEvaluationByBotId, updateEvoluation } from '../../api/evaluationQuestion';
 import { createFeedback } from '../../api/feedback';
 import { AxiosResponse } from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 
 const getButtonStyles = (backgroundColor: string) => ({
   borderRadius: '16px',
@@ -42,14 +64,49 @@ interface IScoreProps {
   negativeCount: number
 }
 
+const drawerWidth: number = 240;
+
+interface AppBarProps extends MuiAppBarProps {
+  open?: boolean;
+}
+
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})<AppBarProps>(({ theme, open }) => ({
+  background: 'rgba(52, 53, 65, 1)',
+  boxShadow: 'none',
+  transition: theme.transitions.create(['width', 'margin'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
 const Chat = () => {
   const pathname = usePathname()
   const id = pathname?.split('/').pop()
   const [question, setQuestion] = useState<IBotAnwser>()
-  const [open, setOpen] = useState(false)
+  const [openFeedback, setOpenFeedback] = useState(false)
+  const [openDrawer, setOpenDrawer] = useState(false)
   const [positiveFeedbackButton, setPositiveFeedbackButton] = useState(false)
   const [negativeFeedbackButton, setNegativeFeedbackButton] = useState(false)
   const [score, setScore] = useState<IScoreProps>({} as IScoreProps)
+  const [projects, setProjects] = useState<IProject[]>([])
+
+  const handleClick = () => {
+
+  }
+
+  const toggleDrawer = () => {
+    setOpenDrawer(!openDrawer)
+  }
 
   const validationFeedback = Yup.object({
     feedback: Yup.string().notRequired()
@@ -80,6 +137,12 @@ const Chat = () => {
       })
     }
     return setScore({} as IEvoluationQuestion)
+  }, [])
+
+  const getAllProjects = useCallback(async () => {
+    const response = await getAllProject()
+    if (response) return setProjects(response)
+    return setProjects([])
   }, [])
 
   const onSubmit = async (values: IFeedbackSubmit) => {
@@ -141,6 +204,7 @@ const Chat = () => {
     if (id) {
       getQuestionId()
       getEvaluationById()
+      getAllProjects()
     }
   }, [id])
 
@@ -152,151 +216,273 @@ const Chat = () => {
   });
 
   return (
-    <Fragment>
-      <Header />
-      <ToastContainer />
-      <Container
-        maxWidth="md"
-        sx={{
-          position: 'relative ',
-          border: '1px solid gray',
-          borderRadius: '16px',
-          padding: '10px 0px',
-          maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'
-        }}>
-        <Box component={'div'} display={'flex'} justifyContent={'space-between'}>
-          <Box component={'div'} sx={{ margin: '16px 16px' }} display={'flex'} flexDirection={'column'} gap={'16px'}>
-            <Box component={'div'} display={'flex'} flexDirection={'row'} alignItems={'center'}>
-              <PersonIcon sx={{ margin: '0px 10px 0px 0px' }} />
-              <Box component={'span'}>
-                Question: {question?.question}
-              </Box>
-            </Box>
-            <Box component={'div'} display={'flex'} flexDirection={'column'} gap={'6px'}>
-              <Box component={'div'} display={'flex'} flexDirection={'row'} alignItems={'center'}>
-                <ChatBubbleIcon sx={{ margin: '0px 10px 0px 0px' }} />
-                <Box component={'span'}>
-                  Answer: {question?.reply}
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-          {open && (
-            <Box component={'div'} sx={{ margin: '16px 16px' }} display={'flex'} flexDirection={'column'} gap={'16px'}>
-              <Box component={'span'}>
-                Positive: {score.positiveCount || 0}
-              </Box>
-              <Box component={'span'}>
-                Negative: {score.negativeCount || 0}
-              </Box>
-            </Box>
-          )}
-        </Box>
-      </Container>
-      <Box component={'div'} display={'flex'} justifyContent={'center'} margin={'20px 0px'}>
-        <Button
-          data-testid='positiveButton'
-          className={positiveFeedbackButton ? 'selected-positive-button' : ''}
-          type="button"
-          variant="contained"
-          color="primary"
-          sx={getButtonStyles('rgba(210,244,211,1)')}
-          onClick={() => {
-            setNegativeFeedbackButton(false)
-            setPositiveFeedbackButton(true)
-            setOpen(true)
-          }}>
-          <ThumbUpAltOutlinedIcon sx={{ width: '40px', color: 'rgba(26,127,100,1)' }} />
-        </Button>
-        <Button
-          data-testid='negativeButton'
-          className={negativeFeedbackButton ? 'selected-negative-button' : ''}
-          type="button"
-          variant="contained"
-          color="primary"
-          sx={getButtonStyles('rgba(254,226,226,1)')}
-          onClick={() => {
-            setPositiveFeedbackButton(false)
-            setNegativeFeedbackButton(true)
-            setOpen(true)
-          }}>
-          <ThumbDownOutlinedIcon sx={{ width: '40px', color: 'rgba(220,38,38,1)' }} />
-        </Button>
-      </Box>
-
-      {open && (
-        <Fragment>
-          <Container
-            maxWidth="md"
+    <Box display={'flex'}>
+      <AppBar
+        position="absolute"
+        open={openDrawer}
+      >
+        <Toolbar
+          sx={{
+            pr: '24px',
+            m: '16px 0px' // keep right padding when drawer closed
+          }}
+        >
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="open drawer"
+            onClick={toggleDrawer}
             sx={{
-              position: 'relative ',
-              border: '1px solid gray',
-              marginTop: '10px',
-              borderRadius: '16px',
-              padding: '20px 0px',
-              maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'
+              marginRight: '36px',
+              ...(openDrawer && { display: 'none' }),
             }}
           >
-            <Box component={'div'} sx={{ margin: '16px' }}>
-              <Box component={'div'} display={'flex'} flexDirection={'column'}>
-                <Box component={'span'} marginTop={'5px'}>
-                  How to improve the bot's response
+            <MenuIcon />
+          </IconButton>
+          <Box component={'div'} display={'flex'} flexDirection={'column'} justifyContent={'center'} width={'100%'}>
+            <Box component={'div'}>
+              <Typography
+                component="h1"
+                variant="h5"
+                color="inherit"
+                align="center"
+                noWrap
+                sx={{ flex: 1 }}
+              >
+                DocGPT Feedback
+              </Typography>
+            </Box>
+            <Box component={'div'} margin={'10px 0px'}>
+              <Typography
+                component={'h2'}
+                variant="h5"
+                color="inherit"
+                align="center"
+                noWrap
+                sx={{ flex: 1 }}
+              >
+                Welcome!
+              </Typography>
+            </Box>
+          </Box>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        variant="persistent"
+        anchor="left"
+        open={openDrawer}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+      >
+        <Toolbar
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            px: 1,
+          }}
+        >
+          <IconButton onClick={toggleDrawer}>
+            <ChevronLeftIcon />
+          </IconButton>
+        </Toolbar>
+        <Divider />
+        <List
+          sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+          component="nav"
+          aria-labelledby="nested-list-subheader"
+          subheader={
+            <ListSubheader component="div" id="nested-list-subheader">
+              Projects List
+            </ListSubheader>
+          }
+        >
+          {projects.map((item, index) => {
+            return (
+              <Fragment key={index}>
+                <ListItemButton onClick={handleClick}>
+                  <ListItemIcon>
+                    <InboxIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={item.project} />
+                  {openDrawer ? <ExpandLess /> : <ExpandMore />}
+                </ListItemButton>
+                <Divider />
+                <Collapse in={openDrawer} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding key={index}>
+                    <ListItemButton sx={{ pl: 4 }}>
+                      <ListItemIcon>
+                        <StarBorder />
+                      </ListItemIcon>
+                      <ListItemText primary={item.botAnswers?.map(item => item.question)} />
+                      <ListItemText primary={item.botAnswers?.map(item => item.reply)} />
+                    </ListItemButton>
+                  </List>
+                  <Divider />
+                </Collapse>
+              </Fragment>
+            )
+          })}
+        </List>
+      </Drawer>
+      <Box component="main"
+        sx={{
+          flexGrow: 1,
+          height: '100vh',
+          overflow: 'auto',
+        }}>
+        <Toolbar />
+        <Toolbar />
+        <ToastContainer />
+        <Container
+          maxWidth="md"
+          sx={{
+            position: 'relative ',
+            border: '1px solid gray',
+            borderRadius: '16px',
+            padding: '10px 0px',
+            maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'
+          }}>
+          <Box component={'div'} display={'flex'} justifyContent={'space-between'}>
+            <Box component={'div'} sx={{ margin: '16px 16px' }} display={'flex'} flexDirection={'column'} gap={'16px'}>
+              <Box component={'div'} display={'flex'} flexDirection={'row'} alignItems={'center'}>
+                <PersonIcon sx={{ margin: '0px 10px 0px 0px' }} />
+                <Box component={'span'}>
+                  Question: {question?.question}
                 </Box>
-                <Box component={'span'} margin={'10px'}>
-                  <TextField
-                    id='feedback'
-                    name='feedback'
-                    type="text"
-                    fullWidth
-                    variant="outlined"
-                    color="primary"
-                    placeholder="Enter your answer here"
-                    sx={{ color: 'white', backgroundColor: 'white', borderRadius: '8px' }}
-                    value={formik.values.feedback}
-                    onChange={formik.handleChange}
-                  />
+              </Box>
+              <Box component={'div'} display={'flex'} flexDirection={'column'} gap={'6px'}>
+                <Box component={'div'} display={'flex'} flexDirection={'row'} alignItems={'center'}>
+                  <ChatBubbleIcon sx={{ margin: '0px 10px 0px 0px' }} />
+                  <Box component={'span'}>
+                    Answer: {question?.reply}
+                  </Box>
                 </Box>
               </Box>
             </Box>
-            <Box component={'div'} display={'flex'} justifyContent={'center'} marginTop={'20px'}>
-              <Button
-                type="button"
-                onClick={() => {
-                  setPositiveFeedbackButton(false)
-                  setNegativeFeedbackButton(false)
-                  setOpen(false)
-                }}
-                sx={{
-                  background: 'rgb(52, 53, 65)',
-                  border: '1px solid rgb(86, 88, 105)',
-                  borderRadius: '8px',
-                  color: 'rgb(217, 217, 227)',
-                  fontSize: '14px',
-                  textTransform: 'uppercase',
-                  minWidth: '150px',
-                  marginRight: '10px'
-                }}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                onClick={() => formik.handleSubmit()}
-                sx={{
-                  background: 'rgb(52, 53, 65)',
-                  border: '1px solid rgb(86, 88, 105)',
-                  borderRadius: '8px',
-                  color: 'rgb(217, 217, 227)',
-                  fontSize: '14px',
-                  textTransform: 'uppercase',
-                  minWidth: '150px',
-                }}>
-                Submit
-              </Button>
-            </Box>
-          </Container>
-        </Fragment>
-      )}
-    </Fragment>
+            {openFeedback && (
+              <Box component={'div'} sx={{ margin: '16px 16px' }} display={'flex'} flexDirection={'column'} gap={'16px'}>
+                <Box component={'span'}>
+                  Positive: {score.positiveCount || 0}
+                </Box>
+                <Box component={'span'}>
+                  Negative: {score.negativeCount || 0}
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </Container>
+        <Box component={'div'} display={'flex'} justifyContent={'center'} margin={'20px 0px'}>
+          <Button
+            data-testid='positiveButton'
+            className={positiveFeedbackButton ? 'selected-positive-button' : ''}
+            type="button"
+            variant="contained"
+            color="primary"
+            sx={getButtonStyles('rgba(210,244,211,1)')}
+            onClick={() => {
+              setNegativeFeedbackButton(false)
+              setPositiveFeedbackButton(true)
+              setOpenFeedback(true)
+            }}>
+            <ThumbUpAltOutlinedIcon sx={{ width: '40px', color: 'rgba(26,127,100,1)' }} />
+          </Button>
+          <Button
+            data-testid='negativeButton'
+            className={negativeFeedbackButton ? 'selected-negative-button' : ''}
+            type="button"
+            variant="contained"
+            color="primary"
+            sx={getButtonStyles('rgba(254,226,226,1)')}
+            onClick={() => {
+              setPositiveFeedbackButton(false)
+              setNegativeFeedbackButton(true)
+              setOpenFeedback(true)
+            }}>
+            <ThumbDownOutlinedIcon sx={{ width: '40px', color: 'rgba(220,38,38,1)' }} />
+          </Button>
+        </Box>
+
+        {openFeedback && (
+          <Fragment>
+            <Container
+              maxWidth="md"
+              sx={{
+                position: 'relative ',
+                border: '1px solid gray',
+                marginTop: '10px',
+                borderRadius: '16px',
+                padding: '20px 0px',
+                maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'
+              }}
+            >
+              <Box component={'div'} sx={{ margin: '16px' }}>
+                <Box component={'div'} display={'flex'} flexDirection={'column'}>
+                  <Box component={'span'} marginTop={'5px'}>
+                    How to improve the bot's response
+                  </Box>
+                  <Box component={'span'} margin={'10px'}>
+                    <TextField
+                      id='feedback'
+                      name='feedback'
+                      type="text"
+                      fullWidth
+                      variant="outlined"
+                      color="primary"
+                      placeholder="Enter your answer here"
+                      sx={{ color: 'white', backgroundColor: 'white', borderRadius: '8px' }}
+                      value={formik.values.feedback}
+                      onChange={formik.handleChange}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+              <Box component={'div'} display={'flex'} justifyContent={'center'} marginTop={'20px'}>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setPositiveFeedbackButton(false)
+                    setNegativeFeedbackButton(false)
+                    setOpenFeedback(false)
+                  }}
+                  sx={{
+                    background: 'rgb(52, 53, 65)',
+                    border: '1px solid rgb(86, 88, 105)',
+                    borderRadius: '8px',
+                    color: 'rgb(217, 217, 227)',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                    minWidth: '150px',
+                    marginRight: '10px'
+                  }}>
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  onClick={() => formik.handleSubmit()}
+                  sx={{
+                    background: 'rgb(52, 53, 65)',
+                    border: '1px solid rgb(86, 88, 105)',
+                    borderRadius: '8px',
+                    color: 'rgb(217, 217, 227)',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                    minWidth: '150px',
+                  }}>
+                  Submit
+                </Button>
+              </Box>
+            </Container>
+          </Fragment>
+        )}
+      </Box>
+    </Box>
   )
 }
 
