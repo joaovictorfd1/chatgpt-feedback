@@ -38,8 +38,6 @@ import { usePathname } from 'next/navigation'
 import { createEvoluation, getEvaluationByBotId, updateEvoluation } from '../../api/evaluationQuestion';
 import { createFeedback } from '../../api/feedback';
 import { AxiosResponse } from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 
 const getButtonStyles = (backgroundColor: string) => ({
@@ -171,39 +169,12 @@ const Chat = () => {
         evaluationId: response.data.id as string,
       })
       if (responseFeedback && responseFeedback.data) {
-        return toast.success('Feedback created successfully!', {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        })
+       return window.alert('Feedback created successfully!')
       }
-      return toast.error(responseFeedback.data.detail, {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      })
+      return window.alert(responseFeedback.data.detail)
     }
     if (response && response.data) {
-      return toast.success('Evoluation created successfully!', {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      })
+      return window.alert('Evoluation created successfully!')
     }
   }
 
@@ -346,7 +317,6 @@ const Chat = () => {
         }}>
         <Toolbar />
         <Toolbar />
-        <ToastContainer />
         <Container
           maxWidth="md"
           sx={{
