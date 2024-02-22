@@ -97,11 +97,18 @@ const Chat = () => {
   const [openDrawer, setOpenDrawer] = useState(false)
   const [positiveFeedbackButton, setPositiveFeedbackButton] = useState(false)
   const [negativeFeedbackButton, setNegativeFeedbackButton] = useState(false)
+  const [openIndex, setOpenIndex] = useState<number[]>([]);
   const [score, setScore] = useState<IScoreProps>({} as IScoreProps)
   const [projects, setProjects] = useState<IProject[]>([])
 
-  const handleClick = () => {
-
+  const handleClick = (index: number) => {
+    if (openIndex.includes(index)) {
+      // Se já estiver aberto, remove o índice
+      setOpenIndex((prevIndexes) => prevIndexes.filter((i) => i !== index));
+    } else {
+      // Se estiver fechado, adiciona o índice
+      setOpenIndex((prevIndexes) => [...prevIndexes, index]);
+    }
   }
 
   const toggleDrawer = () => {
@@ -304,24 +311,24 @@ const Chat = () => {
           }
         >
           {projects.map((item, index) => {
+            const question = item.botAnswers?.map(item => item.question)
+            const indexBotAnswers = item.botAnswers?.map((_, index) => index)
+            const reply = item.botAnswers?.map(item => item.reply)
             return (
               <Fragment key={index}>
-                <ListItemButton onClick={handleClick}>
+                <ListItemButton onClick={() => handleClick(index)}>
                   <ListItemIcon>
                     <InboxIcon />
                   </ListItemIcon>
                   <ListItemText primary={item.project} />
-                  {openDrawer ? <ExpandLess /> : <ExpandMore />}
+                  {openIndex.includes(index) ? <ExpandLess /> : <ExpandMore />}
                 </ListItemButton>
                 <Divider />
-                <Collapse in={openDrawer} timeout="auto" unmountOnExit>
+                <Collapse in={openIndex.includes(index)} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding key={index}>
-                    <ListItemButton sx={{ pl: 4 }}>
-                      <ListItemIcon>
-                        <StarBorder />
-                      </ListItemIcon>
-                      <ListItemText primary={item.botAnswers?.map(item => item.question)} />
-                      <ListItemText primary={item.botAnswers?.map(item => item.reply)} />
+                    <ListItemButton sx={{ pl: 4, display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
+                      <ListItemText primary={`${indexBotAnswers[0]+1}) Question: ${question}`} />
+                      <ListItemText primary={`Reply: ${reply}`} />
                     </ListItemButton>
                   </List>
                   <Divider />
@@ -343,11 +350,11 @@ const Chat = () => {
         <Container
           maxWidth="md"
           sx={{
+            width:`calc(100% - ${drawerWidth}px)`,
             position: 'relative ',
             border: '1px solid gray',
             borderRadius: '16px',
             padding: '10px 0px',
-            maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'
           }}>
           <Box component={'div'} display={'flex'} justifyContent={'space-between'}>
             <Box component={'div'} sx={{ margin: '16px 16px' }} display={'flex'} flexDirection={'column'} gap={'16px'}>
