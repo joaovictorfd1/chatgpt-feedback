@@ -421,12 +421,12 @@ const Chat = () => {
             <Container
               maxWidth="md"
               sx={{
-                position: 'relative ',
+                width:`calc(100% - ${drawerWidth}px)`,
+                position: 'relative',
                 border: '1px solid gray',
                 marginTop: '10px',
                 borderRadius: '16px',
                 padding: '20px 0px',
-                maxWidth: (theme) => theme.breakpoints.up('md') ? '350px' : '100%'
               }}
             >
               <Box component={'div'} sx={{ margin: '16px' }}>
