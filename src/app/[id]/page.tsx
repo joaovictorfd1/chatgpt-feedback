@@ -17,6 +17,7 @@ import {
   Divider,
   Drawer,
   IconButton,
+  InputBase,
   List,
   ListItemButton,
   ListItemIcon,
@@ -25,6 +26,7 @@ import {
   TextField,
   Toolbar,
   Typography,
+  alpha,
   styled
 } from "@mui/material";
 import { useFormik } from 'formik';
@@ -36,6 +38,7 @@ import { createFeedback } from '../../api/feedback';
 import { AxiosResponse } from 'axios';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import SearchIcon from '@mui/icons-material/Search';
 
 
 const getButtonStyles = (backgroundColor: string) => ({
@@ -65,6 +68,48 @@ const drawerWidth: number = 260;
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
 }
+
+const Search = styled('div')(({ theme }) => ({
+  position: 'relative',
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginLeft: 0,
+  width: '100%',
+  [theme.breakpoints.up('sm')]: {
+    margin: theme.spacing(1),
+    width: 'auto',
+  },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: '100%',
+  position: 'absolute',
+  pointerEvents: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: 'inherit',
+  width: '100%',
+  '& .MuiInputBase-input': {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create('width'),
+    [theme.breakpoints.up('sm')]: {
+      width: '12ch',
+      '&:focus': {
+        width: '20ch',
+      },
+    },
+  },
+}));
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
@@ -181,6 +226,11 @@ const Chat = () => {
     router.push(`/${questionId}`)
   }
 
+  const searchForQuestions = (search: string) => {
+    const results = projects.filter(item => item.botAnswers.filter(question => question.question.toLowerCase().includes(search.toLowerCase())))
+    setProjects(results)
+  }
+
   useEffect(() => {
     if (id) {
       getQuestionId()
@@ -256,9 +306,34 @@ const Chat = () => {
           component="nav"
           aria-labelledby="nested-list-subheader"
           subheader={
-            <ListSubheader component="div" sx={{ display: 'flex', justifyContent: 'center', backgroundColor: 'rgba(80, 81, 95, 1)', color: 'white' }} id="nested-list-subheader">
-              Project List
-            </ListSubheader>
+            <Box component={'div'} display={'flex'} flexDirection={'column'}>
+              <Search>
+                <SearchIconWrapper>
+                  <SearchIcon sx={{ color: 'white'}} />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  sx={{ color: 'white' }}
+                  placeholder="Search…"
+                  inputProps={{ 'aria-label': 'search' }}
+                  onChange={(e) => searchForQuestions(e.target.value)}
+                />
+              </Search>
+              <ListSubheader
+                component="div"
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  backgroundColor: 'rgba(80, 81, 95, 1)',
+                  color: 'white',
+                  borderBottom: '1px solid white',
+                  borderTop: '1px solid white',
+                  textTransform: 'uppercase'
+                }}
+                id="nested-list-subheader"
+              >
+                Project List
+              </ListSubheader>
+            </Box>
           }
         >
           {projects.map((item, index) => {
