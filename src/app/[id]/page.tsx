@@ -6,13 +6,9 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import PersonIcon from '@mui/icons-material/Person';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Collapse from '@mui/material/Collapse';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import StarBorder from '@mui/icons-material/StarBorder';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
@@ -34,10 +30,12 @@ import {
 import { useFormik } from 'formik';
 import { getAllProject, getQuestionByid } from '../../api/botAnswer';
 import { IBotAnwser, IEvoluationQuestion, IProject } from '../../interfaces/IQuestion';
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { createEvoluation, getEvaluationByBotId, updateEvoluation } from '../../api/evaluationQuestion';
 import { createFeedback } from '../../api/feedback';
 import { AxiosResponse } from 'axios';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 
 
 const getButtonStyles = (backgroundColor: string) => ({
@@ -62,7 +60,7 @@ interface IScoreProps {
   negativeCount: number
 }
 
-const drawerWidth: number = 240;
+const drawerWidth: number = 260;
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -71,6 +69,7 @@ interface AppBarProps extends MuiAppBarProps {
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })<AppBarProps>(({ theme, open }) => ({
+  width: `calc(100% - ${drawerWidth}px)`,
   background: 'rgba(52, 53, 65, 1)',
   boxShadow: 'none',
   transition: theme.transitions.create(['width', 'margin'], {
@@ -79,7 +78,6 @@ const AppBar = styled(MuiAppBar, {
   }),
   ...(open && {
     width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -89,6 +87,7 @@ const AppBar = styled(MuiAppBar, {
 
 const Chat = () => {
   const pathname = usePathname()
+  const router = useRouter()
   const id = pathname?.split('/').pop()
   const [question, setQuestion] = useState<IBotAnwser>()
   const [openFeedback, setOpenFeedback] = useState(false)
@@ -169,13 +168,17 @@ const Chat = () => {
         evaluationId: response.data.id as string,
       })
       if (responseFeedback && responseFeedback.data) {
-       return window.alert('Feedback created successfully!')
+        return window.alert('Feedback created successfully!')
       }
       return window.alert(responseFeedback.data.detail)
     }
     if (response && response.data) {
       return window.alert('Evoluation created successfully!')
     }
+  }
+
+  const redirectForOtherQuestion = (questionId: string) => {
+    router.push(`/${questionId}`)
   }
 
   useEffect(() => {
@@ -202,21 +205,9 @@ const Chat = () => {
         <Toolbar
           sx={{
             pr: '24px',
-            m: '16px 0px' // keep right padding when drawer closed
+            m: '16px 36px' // keep right padding when drawer closed
           }}
         >
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            onClick={toggleDrawer}
-            sx={{
-              marginRight: '36px',
-              ...(openDrawer && { display: 'none' }),
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
           <Box component={'div'} display={'flex'} flexDirection={'column'} justifyContent={'center'} width={'100%'}>
             <Box component={'div'}>
               <Typography
@@ -254,54 +245,40 @@ const Chat = () => {
           flexShrink: 0,
           '& .MuiDrawer-paper': {
             width: drawerWidth,
+            background: 'rgba(80, 81, 95, 1)',
             boxSizing: 'border-box',
           },
         }}
       >
-        <Toolbar
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            px: 1,
-          }}
-        >
-          <IconButton onClick={toggleDrawer}>
-            <ChevronLeftIcon />
-          </IconButton>
-        </Toolbar>
         <Divider />
         <List
-          sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+          sx={{ width: '100%', maxWidth: 360, bgcolor: 'rgba(80, 81, 95, 1)' }}
           component="nav"
           aria-labelledby="nested-list-subheader"
           subheader={
-            <ListSubheader component="div" id="nested-list-subheader">
-              Projects List
+            <ListSubheader component="div" sx={{ display: 'flex', justifyContent: 'center', backgroundColor: 'rgba(80, 81, 95, 1)', color: 'white' }} id="nested-list-subheader">
+              Project List
             </ListSubheader>
           }
         >
           {projects.map((item, index) => {
-            const question = item.botAnswers?.map(item => item.question)
-            const indexBotAnswers = item.botAnswers?.map((_, index) => index)
-            const reply = item.botAnswers?.map(item => item.reply)
             return (
               <Fragment key={index}>
-                <ListItemButton onClick={() => handleClick(index)}>
+                <ListItemButton onClick={() => handleClick(index)} sx={{ color: 'white' }}>
                   <ListItemIcon>
-                    <InboxIcon />
+                    {openIndex.includes(index) ? <ExpandLess sx={{ color: 'white' }} /> : <ExpandMore sx={{ color: 'white' }} />}
                   </ListItemIcon>
                   <ListItemText primary={item.project} />
-                  {openIndex.includes(index) ? <ExpandLess /> : <ExpandMore />}
                 </ListItemButton>
                 <Divider />
                 <Collapse in={openIndex.includes(index)} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding key={index}>
-                    <ListItemButton sx={{ pl: 4, display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
-                      <ListItemText primary={`${indexBotAnswers[0]+1}) Question: ${question}`} />
-                      <ListItemText primary={`Reply: ${reply}`} />
-                    </ListItemButton>
-                  </List>
+                  {item.botAnswers?.map((questions, indexQuestions) => (
+                    <List component="div" disablePadding key={indexQuestions}>
+                      <ListItemButton sx={{ pl: 4, display: 'flex', flexDirection: 'column', alignItems: 'start', color: 'white' }} onClick={() => redirectForOtherQuestion(questions.id)}>
+                        <ListItemText secondary={`${questions.question}`} secondaryTypographyProps={{ color: 'white' }} />
+                      </ListItemButton>
+                    </List>
+                  ))}
                   <Divider />
                 </Collapse>
               </Fragment>
@@ -315,12 +292,23 @@ const Chat = () => {
           height: '100vh',
           overflow: 'auto',
         }}>
+        <Box component={'div'} position={'fixed'} top={'50%'} sx={{
+          ...(!openDrawer && { left: 0 })
+        }}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="open drawer"
+            onClick={toggleDrawer}
+          >
+            {openDrawer ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
+          </IconButton>
+        </Box>
         <Toolbar />
         <Toolbar />
         <Container
           maxWidth="md"
           sx={{
-            width:`calc(100% - ${drawerWidth}px)`,
             position: 'relative ',
             border: '1px solid gray',
             borderRadius: '16px',
@@ -391,7 +379,6 @@ const Chat = () => {
             <Container
               maxWidth="md"
               sx={{
-                width:`calc(100% - ${drawerWidth}px)`,
                 position: 'relative',
                 border: '1px solid gray',
                 marginTop: '10px',
