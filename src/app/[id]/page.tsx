@@ -227,7 +227,12 @@ const Chat = () => {
   }
 
   const searchForQuestions = (search: string) => {
-    const results = projects.filter(item => item.botAnswers.filter(question => question.question.toLowerCase().includes(search.toLowerCase())))
+    if (search === '') return getAllProjects()
+    const results = projects.filter(project =>
+      project.botAnswers.some(answer =>
+        answer.question.toLowerCase().includes(search.toLowerCase())
+      )
+    );
     setProjects(results)
   }
 
